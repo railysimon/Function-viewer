@@ -13,6 +13,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        window.cpp
+        window.cpp \
+    table.cpp
 
-HEADERS  += window.h
+HEADERS  += window.h \
+    table.h

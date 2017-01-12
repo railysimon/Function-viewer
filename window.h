@@ -22,6 +22,10 @@
 #include <QVector>
 #include <math.h>
 
+#include "table.h"
+
+class Table;
+
 class Window : public QDialog
 {
     Q_OBJECT
@@ -29,6 +33,9 @@ class Window : public QDialog
 public:
     Window(QWidget *parent = 0);
     ~Window();
+
+    Table *table;
+
 protected:
             virtual void paintEvent(QPaintEvent *ev);
             virtual void mousePressEvent(QMouseEvent *ev);
@@ -62,6 +69,8 @@ private slots:
                 void Changer();
                 void buttonSlot();
                 void ListClicked(QListWidgetItem*);
+public slots:
+                void RecieveData(QVector<QPointF> &vec);
 
 };
 

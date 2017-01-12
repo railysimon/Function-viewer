@@ -4,9 +4,13 @@ Window::Window(QWidget *parent) : QDialog(parent), points1(300), pos(500, 100), 
 {
     this->setFixedSize(640, 480);
     this->setWindowTitle("Function viewer");
+    this->setWindowIcon(QPixmap("logo.png"));
     buttonClicked = false;
 
     Layout();
+
+    table = new Table; // table-widget
+    connect(table, SIGNAL(SendData(QVector<QPointF>&)), this, SLOT(RecieveData(QVector<QPointF>&)));
 }
 
 Window::~Window()
@@ -67,6 +71,7 @@ void Window::paintEvent(QPaintEvent *ev)
             if(buttonClicked)
             {
                 Tab();
+
                 QColor fun(255-fun_color->value(), 255-fun_color->value(), fun_color->value());
                 painter.setPen(QPen(fun, 2, Qt::SolidLine)); // functions-build
 
@@ -77,7 +82,7 @@ void Window::paintEvent(QPaintEvent *ev)
                 }
 
                 painter.setFont(QFont("Ubuntu", 12, QFont::Bold)); // choice-point and help lines
-                painter.drawText(width()-100, 20, "X: " + QString::number(posr.x()- width()/2 - 80)
+                painter.drawText(width()-120, 20, "X: " + QString::number(posr.x()- width()/2 - 80)
                                  + " Y: " + QString::number((-1)*(posr.y()-height()/2)));
                 painter.setPen(QPen(Qt::green, 2, Qt::SolidLine));
 
@@ -89,17 +94,17 @@ void Window::paintEvent(QPaintEvent *ev)
                     painter.drawEllipse(posr, 3, 3);
                 }
             }
-            else
+            else // handmake - function
             {
                 if((pos.x() > 160))
                 {
-                    painter.setBrush(QBrush(Qt::red, Qt::SolidPattern));
+                    painter.setBrush(QBrush(Qt::red, Qt::SolidPattern)); // first link with points
                     painter.drawEllipse(pos, 3, 3);
                     painter.drawLine(pos, posr);
                     painter.drawEllipse(posr, 3, 3);
                 }
 
-                for(int i=0; i<points2.size()-1; i++)
+                for(int i=0; i<points2.size()-1; i++) // drawing vector of links
                 {
                     painter.drawEllipse(points2[i], 3, 3);
                     painter.drawLine(points2[i], points2[i+1]);
@@ -115,7 +120,7 @@ void Window::mousePressEvent(QMouseEvent *ev)
     pos = ev->pos();
     QPointF temp(ev->x(), ev->y());
 
-    if(ev->x() > 160) points2.push_front(temp);
+    if(ev->x() > 160) points2.push_front(temp); // vector of links
 }
 
 void Window::mouseReleaseEvent(QMouseEvent *ev)
@@ -133,7 +138,7 @@ void Window::mouseMoveEvent(QMouseEvent *ev)
 void Window::keyPressEvent(QKeyEvent *ev)
 {
     if(ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Z)
-        if(!(points2.isEmpty())) points2.pop_front();
+        if(!(points2.isEmpty())) points2.pop_front(); // del last link
 
     if(ev->key() == Qt::Key_A) posr.setX(posr.x()-1);
     if(ev->key() == Qt::Key_D) posr.setX(posr.x()+1);
@@ -143,7 +148,7 @@ void Window::keyPressEvent(QKeyEvent *ev)
     QWidget::update();
 }
 
-void Window::Tab()
+void Window::Tab() // tabulation of functions
 {
     int step = -150;
 
@@ -176,17 +181,17 @@ void Window::Tab()
     }
 }
 
-QListWidget *Window::list()
+QListWidget *Window::list() // list - factory
 {
     QListWidget *lst = new QListWidget;
     lst->setFixedSize(140, 80);
     lst->setCursor(Qt::PointingHandCursor);
     QListWidgetItem *item;
 
-    QString names[] = {"x^2", "sin(x)", "x^3", "cos(x)"};
+    QString names[] = {"x^2", "sin(x)", "x^3", "cos(x)", "tableset func"};
     lst->setIconSize(QSize(20,20));
 
-    for(int i=0; i<4; i++)
+    for(int i=0; i<5; i++)
     {
         item = new QListWidgetItem(names[i], lst);
         item->setIcon(QPixmap(names[i] + ".png"));
@@ -198,7 +203,7 @@ QListWidget *Window::list()
 
 }
 
-QLabel *Window::label(QString title)
+QLabel *Window::label(QString title) // label - factory
 {
     QLabel *lbl = new QLabel;
     lbl->setFixedSize(160, 15);
@@ -208,7 +213,7 @@ QLabel *Window::label(QString title)
     return lbl;
 }
 
-QSlider *Window::slider()
+QSlider *Window::slider() // slider - factory
 {
     QSlider *slider = new QSlider;
     slider->setFixedWidth(120);
@@ -223,7 +228,7 @@ QSlider *Window::slider()
     return slider;
 }
 
-QPushButton *Window::button(QString title)
+QPushButton *Window::button(QString title) // button - factory
 {
     QPushButton *btn = new QPushButton(title);
     btn->setFont(QFont("Ubuntu", 10, QFont::Bold));
@@ -234,7 +239,7 @@ QPushButton *Window::button(QString title)
     return btn;
 }
 
-QSpinBox *Window::spin()
+QSpinBox *Window::spin() // spinbox - factory
 {
     QSpinBox *spn = new QSpinBox;
     spn->setCursor(Qt::PointingHandCursor);
@@ -262,13 +267,13 @@ void Window::Layout()
 
     QGroupBox *colors = new QGroupBox("Colors");
     colors->setFixedSize(140, 100);
-    QVBoxLayout *group = new QVBoxLayout;
+    QVBoxLayout *group = new QVBoxLayout; // groupbox of colors
 
     group->addWidget(bg_color);
     group->addWidget(fun_color);;
     colors->setLayout(group);
 
-    gade = new QCheckBox("Gades");
+    gade = new QCheckBox("Gates"); // checkboxes
     gade->setChecked(true);
     gade->setCursor(Qt::PointingHandCursor);
 
@@ -279,14 +284,14 @@ void Window::Layout()
     connect(gade, SIGNAL(clicked(bool)), this, SLOT(Changer()));
     connect(cross, SIGNAL(clicked(bool)), this, SLOT(Changer()));
 
-    QLabel *coef = label("Coefficientes: ");
+    QLabel *coef = label("Coefficientes: "); // spins
     coefX = spin(); coefY = spin();
     QHBoxLayout *coflay = new QHBoxLayout;
     coflay->setAlignment(Qt::AlignLeft);
     coflay->addWidget(coefX);
     coflay->addWidget(coefY);
 
-    QPushButton *paint = button("Paint");
+    QPushButton *paint = button("Paint"); // buttons
     QPushButton *clear = button("Clear");
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -328,9 +333,9 @@ void Window::buttonSlot()
 
 void Window::ListClicked(QListWidgetItem *item)
 {
-    QString names[] = {"x^2", "sin(x)", "x^3", "cos(x)"};
+    QString names[] = {"x^2", "sin(x)", "x^3", "cos(x)", "tableset func"};
 
-    for(int i=0; i<4; i++)
+    for(int i=0; i<5; i++)
     {
         if(item->text() == names[i])
         {
@@ -338,6 +343,30 @@ void Window::ListClicked(QListWidgetItem *item)
             break;
         }
     }
+
+
+    coefX->setEnabled(true);
+    coefY->setEnabled(true);
+
+    if(item_choise == 5)
+    {
+        table->show();
+        coefX->setEnabled(false);
+        coefY->setEnabled(false);
+    }
 }
 
+void Window::RecieveData(QVector<QPointF> &vec)
+{
+    points1.clear();
+    points1.resize(300);
 
+    for(int i=0; i<vec.size(); i++)
+    {
+        vec[i].setX(vec[i].x() + width()/2 + 80);
+        vec[i].setY((-1)*vec[i].y() + height()/2);
+    }
+
+    for(int i=0; i<vec.size(); i++)
+        points1[i] = vec[i];
+}

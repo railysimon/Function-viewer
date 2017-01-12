@@ -1,4 +1,6 @@
 #include "window.h"
+#include "table.h"
+
 #include <QApplication>
 
 int main(int argc, char *argv[])
